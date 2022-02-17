@@ -19,7 +19,7 @@ public class RemoteRequest {
         log.info("REMOTE REQUEST: ENTERED INTO THE CHECK_REMOTE_DATA");
         HttpHeaders headers = getHeaders();
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://localhost:8082/menus/put/check_reservation_menus";
+        String url = "http://${MENUS_SERVER:localhost}:8082/menus/put/check_reservation_menus";
         HttpEntity<Remote_Put_Reservation_Menus_DTO> requestEntity = new HttpEntity<>(reservation_data,headers);
         ResponseEntity<Integer> response_entity=restTemplate.exchange(url, HttpMethod.PUT, requestEntity, Integer.class);
 
