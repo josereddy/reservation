@@ -1,0 +1,50 @@
+version: '3'
+services:
+  zookeeper:
+    container_name: zookeeper
+    image: wurstmeister/zookeeper
+    ports:
+      - "2181:2181"
+    networks:
+     - first_network
+
+
+  kafka:
+    container_name: kafka
+    image: wurstmeister/kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: INTERNAL://:29092,EXTERNAL_SAME_HOST://:9092
+      KAFKA_ADVERTISED_LISTENERS: EXTERNAL_SAME_HOST://127.0.0.1:9092,INTERNAL://kafka:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL_SAME_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_CREATE_TOPICS: "ORDER:1:1,ORDER_UPDATE:1:1"
+    networks:
+      -  first_network
+    depends_on:
+      - zookeeper
+
+  reservation:
+        build:
+           context: .
+           dockerfile: Dockerfile
+        ports:
+          - "8083:8083"
+        environment:
+           DPSQL_HOSTNAME: psql
+           DBOOT_NAME: kafka
+           KAFKA-IP: 29092
+           MONGODB_HOSTNAME: mongodb
+        restart: always
+        container_name: reservation
+        image: jose737vijay/reservation
+        networks:
+          -  first_network
+        depends_on:
+          - psql
+          - zookeeper
+          - kafka
+networks:
+   first_network:
