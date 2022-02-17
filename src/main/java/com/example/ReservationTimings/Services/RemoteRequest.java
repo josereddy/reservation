@@ -10,6 +10,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Service
 public class RemoteRequest {
+    //
 
 
     private static final Logger log = LogManager.getLogger(RemoteRequest.class.getName());
