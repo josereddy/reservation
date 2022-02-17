@@ -38,6 +38,9 @@ spring:
       transactionalId: NotifiactionTransId
 
 
+Remote:
+  url_remote: http://${MENUS_SERVER:localhost}:8082/menus/put/check_reservation_menus
+
 server:
   port: 8083
 
