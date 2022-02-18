@@ -12,7 +12,7 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class RemoteRequest {
     //
-
+//
     @Value("${Remote.url_remote}")
     private String url_remote_check;
 
