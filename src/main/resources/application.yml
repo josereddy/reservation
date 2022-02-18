@@ -47,7 +47,6 @@ server:
 kafka:
   topic:
     json-demo:
-      name1 : ORDER
-      name2 : ORDER_UPDATE
+      name1 : RESERVATIONS
       groupId1 : NotificationJsonDemoGroup
-      groupId2 : NotificationJsonDempGroup2
+
