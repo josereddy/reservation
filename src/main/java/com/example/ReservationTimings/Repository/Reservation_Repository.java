@@ -9,9 +9,7 @@ import java.util.List;
 
 
 @Repository
-public interface Reservation_Repository extends MongoRepository<Reservation_MDB,Long> {
-
-
+public interface Reservation_Repository extends MongoRepository<Reservation_MDB, Long> {
 
 
     void deleteAllByRestaurantcode(String code);
@@ -20,5 +18,5 @@ public interface Reservation_Repository extends MongoRepository<Reservation_MDB,
 
     @Query(value = "{'id':{$gt:?0}}")
     List<Reservation_MDB> getbyid(Long id_check_sum);
-    //
+
 }

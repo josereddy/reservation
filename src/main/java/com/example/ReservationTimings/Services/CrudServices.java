@@ -36,6 +36,7 @@ import java.time.DateTimeException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
@@ -163,6 +164,18 @@ public class CrudServices {
                 ////do decrement first if all is ok
                 if (cc_service.decrement_booking(reservation_mdb_optional.get())) {
 //                updating the reservation
+                    ///check for valid date
+                    Pattern pd = Pattern.compile("[0-9]{4}(\\-)[01][0-9](\\-)[0123][0-9]");
+                    Matcher m = pd.matcher(reservation_put_dto.getReservation_date());
+                    if ((m.find())) {
+
+                        LocalDate today = LocalDate.now(ZoneId.of("America/Montreal"));
+                        if (!((today.toString().compareTo(m.group())) <= 0))
+                            throw new UserNotFoundException("Please check the Date must be cannot  be past date ");
+                    } else
+                        throw new UserNotFoundException("Please check the Date format must be YYYY-MM-DD");
+
+
                     reservation_mdb_optional.get().setReservationdate(reservation_put_dto.getReservation_date());
                     reservation_mdb_optional.get().setBookingtime(reservation_put_dto.getBooking_time());
 
@@ -308,7 +321,7 @@ public class CrudServices {
     }
 
     /////////////////////////////////////SCHEDULER
-    @Scheduled(cron = "*/10 * * * * *")
+    @Scheduled(cron = "* */25 * * * *")
     public void backup_automation() {
         log.info("cron job started");
         //creating current date

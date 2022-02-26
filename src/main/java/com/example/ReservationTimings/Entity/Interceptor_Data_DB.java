@@ -21,7 +21,7 @@ public class Interceptor_Data_DB {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private Integer Id;
-  private String Apiname;
+  private String apiname;
   private String servicename;
   private String url;
   private Date date;
