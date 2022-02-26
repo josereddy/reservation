@@ -203,15 +203,12 @@ public class Check_ConvertService {
 
         //if not just add the object to booking database
         else {
-            System.out.println("adding booking number daat");
             booking_reservation_mdb = new Reservation_Booking_Number_MDB();
             no_of_booking = 1;
             booking_reservation_mdb.setId(seq_service.generateSequence(Reservation_Booking_Number_MDB.SEQUENCE_NAME));
             booking_reservation_mdb.setRestaurantcode(reservation_mdb.getRestaurantcode());
             booking_reservation_mdb.setRestaurantstring(booking_data);
             booking_reservation_mdb.setNumberofbooking(no_of_booking);
-            System.out.println(booking_reservation_mdb.getRestaurantcode()+booking_reservation_mdb.getRestaurantstring());
-
             booking_repository.save(booking_reservation_mdb);
         }
 
