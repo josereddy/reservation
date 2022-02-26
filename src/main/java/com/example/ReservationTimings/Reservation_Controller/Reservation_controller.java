@@ -138,7 +138,7 @@ public class Reservation_controller {
     @Operation(summary = "[GET The All Reservation Api timings]", description = "Retrieve data in pagination format from db")
     @Parameter(name = "offset", example = "0", required = true, description = " PAGE OFFSET", in = ParameterIn.PATH)
     @Parameter(name = "pageSize", example = "5", required = true, description = "PAGE SIZE", in = ParameterIn.PATH)
-    @Parameter(name = "Microservice", example = "MENU", required = true, description = "Microservice name", in = ParameterIn.PATH)
+    @Parameter(name = "Microservice", example = "RESERVATION", required = true, description = "Microservice name", in = ParameterIn.PATH)
 
     public Page<Interceptor_Data_DB> get_api_timing(@PathVariable("offset") int offset, @PathVariable("pageSize") int pageSize, @PathVariable("Microservice") String name) {
         log.info("REST API:Entered into Api TIME sender");

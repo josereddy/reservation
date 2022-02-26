@@ -104,13 +104,13 @@ public class Reservation_Integration_Testing {
     }
 
 
-    /////////Menus_post
+    /////////Reservation_post
 
     @WithMockUser(username = "jose", password = "jose@", roles = "ADMIN")
     @DisplayName("Post_Location_TEST:1")
     @Test
     @Order(1)
-    public void Menus_Post_Positive() throws Exception {
+    public void Reservation_Post_Positive() throws Exception {
 
         // given - precondition or setup
         String Expected = "Reservation Data Successfully Added to DataBase";
@@ -134,7 +134,7 @@ public class Reservation_Integration_Testing {
     @DisplayName("Get_Reservation TEST:1 default")
     @Test
     @Order(2)
-    public void Menus_get_BY_PAGINATION_TEST1() throws Exception {
+    public void Reservation_get_BY_PAGINATION_TEST1() throws Exception {
 
         // given - precondition or setup
         List<Reservation_MDB> list_menus_mdb = new ArrayList();
@@ -169,7 +169,7 @@ public class Reservation_Integration_Testing {
     @DisplayName("Get_Reservation_By_ID TEST:1 Default")
     @Test
     @Order(3)
-    public void Menus_get_BY_Field_TEST1() throws Exception {
+    public void Reservation_get_BY_Field_TEST1() throws Exception {
 
         // given - precondition or setup
         reservation_repository.save(reservation_mdb);
@@ -200,7 +200,7 @@ public class Reservation_Integration_Testing {
         reservation_put_dto.setId(list_reservation_mdb.get(0).getId());
         reservation_put_dto.setReservation_date(reservation_post_dto.getReservation_date());
         reservation_put_dto.setRestaurant_code(reservation_post_dto.getRestaurant_code());
-        reservation_put_dto.setRestaurant_name(reservation_post_dto.getRestaurant_name());
+        reservation_put_dto.setRestaurant_name("helloworld");
         reservation_put_dto.setBooking_time("12:00-12:30");
 
         String expectedresult = "Data updated Successfully";

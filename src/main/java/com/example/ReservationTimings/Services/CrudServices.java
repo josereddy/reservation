@@ -78,6 +78,8 @@ public class CrudServices {
 
         log.info("CRUD_SERVICE: Entered the AddReservation to database");
 
+        System.out.println("inside the save_reservation");
+
         Integer no_of_booking = 1;
         if (cc_service.check_reservation_post_dto(reservation_post_dto)) {
             reservation_mdb = cc_service.DtoDocument_convert(reservation_post_dto);
@@ -139,87 +141,92 @@ public class CrudServices {
     public void update_service_reservation(Reservation_Put_DTO reservation_put_dto) {
         log.info("CRUD_SERVICE: Entered into UPDATE SERVICE");
 
+        //////////////1)check for valid date
+        Pattern pd = Pattern.compile("[0-9]{4}(\\-)[01][0-9](\\-)[0123][0-9]");
+        Matcher m = pd.matcher(reservation_put_dto.getReservation_date());
+        if ((m.find())) {
 
-        ////check if the updated details slot got filled return it cannot be booked that updated slot
-        if (cc_service.findbookingnumber(reservation_put_dto)) {
-
-
-            ////check if it is  a valid id
-            if (!(reservation_repository.findById(reservation_put_dto.getId()).isPresent()))
-                throw new UserNotFoundException("Reservation with ID " + reservation_put_dto.getId() + " not present");
-            Optional<Reservation_MDB> reservation_mdb_optional = reservation_repository.findById(reservation_put_dto.getId());
-
-            ////check if it has valid code and name of the restaurant
-            if ((reservation_mdb_optional.get().getRestaurantcode().equals(reservation_put_dto.getRestaurant_code())) &&
-                    (reservation_mdb_optional.get().getRestaurantname().equals(reservation_put_dto.getRestaurant_name()))) {
+            LocalDate today = LocalDate.now(ZoneId.of("America/Montreal"));
+            if (!((today.toString().compareTo(m.group())) <= 0))
+                throw new UserNotFoundException("Please check the Date must be cannot  be past date ");
+        } else
+            throw new UserNotFoundException("Please check the Date format must be YYYY-MM-DD");
 
 
-                /////check if it is previous return it cannot be updated
-                if ((reservation_mdb_optional.get().getReservationdate().equals(reservation_put_dto.getReservation_date())) &&
-                        (reservation_mdb_optional.get().getBookingtime().equals(reservation_put_dto.getBooking_time()))) {
-                    throw new UnauthorisedException("since all details are same as previous no need for update");
-                }
+        //2)only if time format is valid then move further ahead
+       if( cc_service.check_booking_time(reservation_put_dto.getBooking_time()))
+       {
+
+           ////3)check if it is  a valid id
+           if (!(reservation_repository.findById(reservation_put_dto.getId()).isPresent()))
+               throw new UserNotFoundException("Reservation with ID " + reservation_put_dto.getId() + " not present");
+
+           Optional<Reservation_MDB> reservation_mdb_old_optional = reservation_repository.findById(reservation_put_dto.getId());
 
 
-                ////do decrement first if all is ok
-                if (cc_service.decrement_booking(reservation_mdb_optional.get())) {
-//                updating the reservation
-                    ///check for valid date
-                    Pattern pd = Pattern.compile("[0-9]{4}(\\-)[01][0-9](\\-)[0123][0-9]");
-                    Matcher m = pd.matcher(reservation_put_dto.getReservation_date());
-                    if ((m.find())) {
-
-                        LocalDate today = LocalDate.now(ZoneId.of("America/Montreal"));
-                        if (!((today.toString().compareTo(m.group())) <= 0))
-                            throw new UserNotFoundException("Please check the Date must be cannot  be past date ");
-                    } else
-                        throw new UserNotFoundException("Please check the Date format must be YYYY-MM-DD");
+               /////4)check if it is previous values return it cannot be updated
+               if ((reservation_mdb_old_optional.get().getRestaurantcode().equals(reservation_put_dto.getRestaurant_code())) &&
+                       (reservation_mdb_old_optional.get().getRestaurantname().equals(reservation_put_dto.getRestaurant_name()))&&
+                       (reservation_mdb_old_optional.get().getReservationdate().equals(reservation_put_dto.getReservation_date())) &&
+                       (reservation_mdb_old_optional.get().getBookingtime().equals(reservation_put_dto.getBooking_time()))) {
+                   throw new UnauthorisedException("since all details are same as previous no need for update");
+               }
 
 
-                    reservation_mdb_optional.get().setReservationdate(reservation_put_dto.getReservation_date());
-                    reservation_mdb_optional.get().setBookingtime(reservation_put_dto.getBooking_time());
 
-                    ////////////////////////// creating the day based on date to udpdate the reservation database
-                    LocalDate today = LocalDate.now(ZoneId.of("America/Montreal"));
-                    Pattern p = Pattern.compile("\\-");
-                    String[] s = p.split(reservation_put_dto.getReservation_date());
-                    java.time.DayOfWeek dayOfWeek;
-                    try {
-                        LocalDate localDate = LocalDate.of(Integer.parseInt(s[0]), Integer.parseInt(s[1]), Integer.parseInt(s[2]));
-                        dayOfWeek = localDate.getDayOfWeek();
-                    } catch (DateTimeException e) {
-                        throw new DateFormatException("PLease enter a valid date");
-                    }
-                    reservation_mdb_optional.get().setReservationday(dayOfWeek.toString());
-                    if (cc_service.verify_before_add(reservation_mdb_optional.get())) {
-                        reservation_repository.save(reservation_mdb_optional.get());
-                    }
-                }
+               ////5)check if the updated details slot got filled return it cannot be booked that updated slot
+           if (cc_service.findbookingnumber(reservation_put_dto)) {
 
+               Reservation_MDB reservation_mdb_update =new Reservation_MDB();
+               reservation_mdb_update.setRestaurantcode(reservation_put_dto.getRestaurant_code());
+               reservation_mdb_update.setRestaurantname(reservation_put_dto.getRestaurant_name());
+               reservation_mdb_update.setReservationdate(reservation_put_dto.getReservation_date());
+               reservation_mdb_update.setBookingtime(reservation_put_dto.getBooking_time());
+               reservation_mdb_update.setId(reservation_mdb_old_optional.get().getId());
+               ////////////////////////// creating the day based on date
+               LocalDate today = LocalDate.now(ZoneId.of("America/Montreal"));
+               Pattern p = Pattern.compile("\\-");
+               String[] s = p.split(reservation_put_dto.getReservation_date());
+               java.time.DayOfWeek dayOfWeek;
+               try {
+                   LocalDate localDate = LocalDate.of(Integer.parseInt(s[0]), Integer.parseInt(s[1]), Integer.parseInt(s[2]));
+                   dayOfWeek = localDate.getDayOfWeek();
+               } catch (DateTimeException e) {
+                   throw new DateFormatException("PLease enter a valid date");
+               }
+               reservation_mdb_update.setReservationday(dayOfWeek.toString());
+               if (cc_service.verify_before_add(reservation_mdb_update)) {
+                   reservation_repository.save(reservation_mdb_update);
+               }
+               ////do decrement first if all is ok
+               cc_service.decrement_booking(reservation_mdb_old_optional.get());
+           } else {
+               log.info("CRUD_SERVICE: EXITED FROM  UPDATE SERVICE");
+               throw new UnauthorisedException("All bookings are filled for the requested updates");
+           }
+           } else {
+               log.debug("CRUD_SERVICE: Unsuccessfully EXITED  FROM  UPDATE SERVICE");
+               throw new UnauthorisedException("Time format must be of 24 hrs please check back");
+           }
 
-            } else
-                throw new UnauthorisedException("U cannot able to modify restaurant name and code only way access location api to do it");
-            log.debug("CRUD_SERVICE: EXITED FROM  UPDATE SERVICE");
-        } else {
-            log.debug("CRUD_SERVICE: Unsuccessfully EXITED  FROM  UPDATE SERVICE");
-            throw new UnauthorisedException("All bookings are filled for the requested updates");
-        }
-    }
+       }
+
 
 
     //    /////////////Deleted  service
-    public Boolean delete_service_reservation(Long id) {
-        log.info("CRUD_SERVICE: Entered into DELETED SERVICE");
-        if (!(reservation_repository.findById(id).isPresent()))
-            throw new UserNotFoundException("Reservation with ID " + id + " not present");
-        else {
+    public Boolean delete_service_reservation(Long id){
+            log.info("CRUD_SERVICE: Entered into DELETED SERVICE");
+            if (!(reservation_repository.findById(id).isPresent()))
+                throw new UserNotFoundException("Reservation with ID " + id + " not present");
+            else {
 
-            reservation_mdb = (reservation_repository.findById(id).get());
-            cc_service.decrement_booking(reservation_mdb);
-            reservation_repository.deleteById(id);
-            log.debug("CRUD_SERVICE: Exited into DELETED SERVICE");
-            return true;
-        }
+                reservation_mdb = (reservation_repository.findById(id).get());
+                cc_service.decrement_booking(reservation_mdb);
+                reservation_repository.deleteById(id);
+                log.debug("CRUD_SERVICE: Exited into DELETED SERVICE");
+                return true;
+            }
+
 
     }
 

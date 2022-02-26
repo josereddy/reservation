@@ -203,6 +203,7 @@ public class Check_ConvertService {
 
         //if not just add the object to booking database
         else {
+            System.out.println("adding booking number daat");
             booking_reservation_mdb = new Reservation_Booking_Number_MDB();
             no_of_booking = 1;
             booking_reservation_mdb.setId(seq_service.generateSequence(Reservation_Booking_Number_MDB.SEQUENCE_NAME));
@@ -264,7 +265,7 @@ public class Check_ConvertService {
 
         ////if exists get the update the no of record and get back the record number
         if (booking_reservation_mdb != null) {
-            if (booking_reservation_mdb.getNumberofbooking() > 3) {
+            if (booking_reservation_mdb.getNumberofbooking() > 2) {
 
                 log.info("CHECK_CONVERT_SERVICE: Failed Exited findBooking number Service");
                 return false;
