@@ -1,7 +1,6 @@
 package com.example.ReservationTimings.Services;
 
 
-
 import com.example.ReservationTimings.DTO.Remote_Put_Reservation_Menus_DTO;
 import com.example.ReservationTimings.DTO.Reservation_Kafka_DTO;
 import com.example.ReservationTimings.DTO.Reservation_Post_DTO;
@@ -71,15 +70,13 @@ public class Check_ConvertService {
 
         ////checking for date pattern
         Pattern p = Pattern.compile("[0-9]{4}(\\-)[01][0-9](\\-)[0123][0-9]");
-        Matcher m=p.matcher(reservation_post_dto.getReservation_date());
-        if((m.find()))
-        {
+        Matcher m = p.matcher(reservation_post_dto.getReservation_date());
+        if ((m.find())) {
 
             LocalDate today = LocalDate.now(ZoneId.of("America/Montreal"));
-            if(!((today.toString().compareTo(m.group()))<=0))
+            if (!((today.toString().compareTo(m.group())) <= 0))
                 throw new UserNotFoundException("Please check the Date must be cannot  be past date ");
-        }
-        else
+        } else
             throw new UserNotFoundException("Please check the Date format must be YYYY-MM-DD");
 
         ///checking for  reservation 24 hour pattern
@@ -90,9 +87,6 @@ public class Check_ConvertService {
             return false;
         }
     }
-
-
-
 
 
     public boolean check_booking_time(String bookingtime) {
@@ -130,43 +124,35 @@ public class Check_ConvertService {
     }
 
 
-
-
     ///check for already existed data
 
     public Boolean check_existed_timings(Reservation_MDB reservation_mdb) {
         log.info("CHECK_CONVERT_SERVICE: Entered CHECK_EXISTED_TIMING Service");
-           Integer no_of_booking;
+        Integer no_of_booking;
 
 
-        String booking_data = reservation_mdb.getRestaurantcode()+reservation_mdb.getRestaurantname()+","+
-                reservation_mdb.getReservationdate()+reservation_mdb.getBookingtime();
+        String booking_data = reservation_mdb.getRestaurantcode() + reservation_mdb.getRestaurantname() + "," +
+                reservation_mdb.getReservationdate() + reservation_mdb.getBookingtime();
         //trying to get the booking object
 
-        booking_reservation_mdb=booking_repository.findByRestaurantstring(booking_data);
+        booking_reservation_mdb = booking_repository.findByRestaurantstring(booking_data);
 
         ////if exists get the update the no of record and get back the record number
         log.info("CHECK_CONVERT_SERVICE: Exited CHECK_EXISTED_TIMING Service");
-             if(booking_reservation_mdb!=null)
-                 return true;
-             return false;
+        if (booking_reservation_mdb != null)
+            return true;
+        return false;
     }
 
 
-
-
-
-
     //////verify before addd
-    public Boolean verify_before_add( Reservation_MDB reservation_mdb ) {
+    public Boolean verify_before_add(Reservation_MDB reservation_mdb) {
         ////check for already existed timing
 
         log.info("CHECK AND CONVERT:ENTERED INTO THE verify _before_Add");
-        if((check_existed_timings(reservation_mdb))) {
+        if ((check_existed_timings(reservation_mdb))) {
             increase_no_ofbookings(reservation_mdb);
-        }
-
-        else {
+        } else {
             ///remote request
             Integer remote_response = remote_request_service.remote_check_put_reservation_menus(convert_mdb_remote_put_dto(reservation_mdb));
             switch (remote_response) {
@@ -177,65 +163,57 @@ public class Check_ConvertService {
                 case 3:
                     throw new UserNotFoundException("USAGE:Restaurant Operation Timings invalid look back MENU API");
                 case 4:
-                    throw new UserNotFoundException("USAGE:Restaurant Closed ON "+reservation_mdb.getReservationday());
+                    throw new UserNotFoundException("USAGE:Restaurant Closed ON " + reservation_mdb.getReservationday());
 
                 case 0:
                     increase_no_ofbookings(reservation_mdb);
             }
         }
-//
-//        reservation_repo.save(reservation_data);
+
         log.info("Check and convert: Successfully Exited the verifyReservation to database");
         return true;
 
     }
 
 
-
-
-
-
-
     //////////incremental   decremental service
 
     public Integer increase_no_ofbookings(Reservation_MDB reservation_mdb) {
         log.info("CHECK_CONVERT_SERVICE: Entered Increase_no_of_Booking Service");
-           Integer no_of_booking;
+        Integer no_of_booking;
 
 
-           String booking_data = reservation_mdb.getRestaurantcode()+reservation_mdb.getRestaurantname()+","+
-                   reservation_mdb.getReservationdate()+reservation_mdb.getBookingtime();
-           //trying to get the booking object
+        String booking_data = reservation_mdb.getRestaurantcode() + reservation_mdb.getRestaurantname() + "," +
+                reservation_mdb.getReservationdate() + reservation_mdb.getBookingtime();
+        //trying to get the booking object
 
-             booking_reservation_mdb=booking_repository.findByRestaurantstring(booking_data);
-
-
+        booking_reservation_mdb = booking_repository.findByRestaurantstring(booking_data);
 
 
-           ////if exists get the update the no of record and get back the record number
-             if(booking_reservation_mdb!=null) {
+        ////if exists get the update the no of record and get back the record number
+        if (booking_reservation_mdb != null) {
 
-                  no_of_booking = booking_reservation_mdb.getNumberofbooking() + 1;
-                if((no_of_booking)>=4) {
-                     throw new BookingExceedException("Restaurant Booking full for " + reservation_mdb.getReservationday() + "  : " + reservation_mdb.getReservationdate() + "   :  " + reservation_mdb.getBookingtime());
-                 }
-                 booking_reservation_mdb.setNumberofbooking(no_of_booking);
-                 booking_repository.save(booking_reservation_mdb);
-             }
+            no_of_booking = booking_reservation_mdb.getNumberofbooking() + 1;
+            if ((no_of_booking) >= 4) {
+                throw new BookingExceedException("Restaurant Booking full for " + reservation_mdb.getReservationday() + "  : " + reservation_mdb.getReservationdate() + "   :  " + reservation_mdb.getBookingtime());
+            }
+            booking_reservation_mdb.setNumberofbooking(no_of_booking);
+            booking_repository.save(booking_reservation_mdb);
+        }
 
-             //if not just add the object to booking database
-             else {
-                 booking_reservation_mdb = new Reservation_Booking_Number_MDB();
-                 no_of_booking = 1;
-                 booking_reservation_mdb.setId(seq_service.generateSequence(Reservation_Booking_Number_MDB.SEQUENCE_NAME));
-                booking_reservation_mdb.setRestaurantcode(reservation_mdb.getRestaurantcode());
-                 booking_reservation_mdb.setRestaurantstring(booking_data);
-                 booking_reservation_mdb.setNumberofbooking(no_of_booking);
-                 booking_repository.save(booking_reservation_mdb);
-             }
+        //if not just add the object to booking database
+        else {
+            booking_reservation_mdb = new Reservation_Booking_Number_MDB();
+            no_of_booking = 1;
+            booking_reservation_mdb.setId(seq_service.generateSequence(Reservation_Booking_Number_MDB.SEQUENCE_NAME));
+            booking_reservation_mdb.setRestaurantcode(reservation_mdb.getRestaurantcode());
+            booking_reservation_mdb.setRestaurantstring(booking_data);
+            booking_reservation_mdb.setNumberofbooking(no_of_booking);
+            booking_repository.save(booking_reservation_mdb);
+        }
 
         log.info("CHECK_CONVERT_SERVICE: Exited Increase_no_of_Booking Service");
-             return no_of_booking;
+        return no_of_booking;
     }
 
 
@@ -244,13 +222,12 @@ public class Check_ConvertService {
         log.info("CHECK_CONVERT_SERVICE: Entered Decrease_no_of_Booking Service");
 
 
-
-        String booking_data = reservation_mdb.getRestaurantcode()+reservation_mdb.getRestaurantname()+","+
-                reservation_mdb.getReservationdate()+reservation_mdb.getBookingtime();
+        String booking_data = reservation_mdb.getRestaurantcode() + reservation_mdb.getRestaurantname() + "," +
+                reservation_mdb.getReservationdate() + reservation_mdb.getBookingtime();
         //trying to get the booking object
 
-        booking_reservation_mdb=booking_repository.findByRestaurantstring(booking_data);
-        if(booking_reservation_mdb.getNumberofbooking()==1) {
+        booking_reservation_mdb = booking_repository.findByRestaurantstring(booking_data);
+        if (booking_reservation_mdb.getNumberofbooking() == 1) {
             booking_repository.deleteById(booking_reservation_mdb.getId());
             log.info("CHECK_CONVERT_SERVICE: SUCCESSFULLY Exited Decrease_no_of_Booking Service");
             return true;
@@ -258,9 +235,8 @@ public class Check_ConvertService {
         }
 
         //if not just add the object to booking database
-        else if(booking_reservation_mdb.getNumberofbooking()>1)
-        {
-            booking_reservation_mdb.setNumberofbooking((booking_reservation_mdb.getNumberofbooking())-1);
+        else if (booking_reservation_mdb.getNumberofbooking() > 1) {
+            booking_reservation_mdb.setNumberofbooking((booking_reservation_mdb.getNumberofbooking()) - 1);
             booking_repository.save(booking_reservation_mdb);
             log.info("CHECK_CONVERT_SERVICE:SUCCESSFULLY Exited Decrease_no_of_Booking Service");
             return true;
@@ -270,12 +246,7 @@ public class Check_ConvertService {
         return false;
 
 
-
     }
-
-
-
-
 
 
     public Boolean findbookingnumber(Reservation_Put_DTO reservation_put_dto) {
@@ -284,17 +255,15 @@ public class Check_ConvertService {
         Integer no_of_booking;
 
 
-        String booking_data = reservation_put_dto.getRestaurant_code()+reservation_put_dto.getRestaurant_name()+","+
-                reservation_put_dto.getReservation_date()+reservation_put_dto.getBooking_time();
+        String booking_data = reservation_put_dto.getRestaurant_code() + reservation_put_dto.getRestaurant_name() + "," +
+                reservation_put_dto.getReservation_date() + reservation_put_dto.getBooking_time();
         //trying to get the booking object
 
-        booking_reservation_mdb=booking_repository.findByRestaurantstring(booking_data);
-
-
+        booking_reservation_mdb = booking_repository.findByRestaurantstring(booking_data);
 
 
         ////if exists get the update the no of record and get back the record number
-        if(booking_reservation_mdb!=null) {
+        if (booking_reservation_mdb != null) {
             if (booking_reservation_mdb.getNumberofbooking() > 3) {
 
                 log.info("CHECK_CONVERT_SERVICE: Failed Exited findBooking number Service");
@@ -307,12 +276,6 @@ public class Check_ConvertService {
         return true;
 
     }
-
-
-
-
-
-
 
 
     //////////////////////////////////////////DTO Document
@@ -328,9 +291,7 @@ public class Check_ConvertService {
         try {
             LocalDate localDate = LocalDate.of(Integer.parseInt(s[0]), Integer.parseInt(s[1]), Integer.parseInt(s[2]));
             dayOfWeek = localDate.getDayOfWeek();
-        }
-        catch(DateTimeException e)
-        {
+        } catch (DateTimeException e) {
             throw new DateFormatException("PLease enter a valid date");
         }
 
@@ -363,13 +324,8 @@ public class Check_ConvertService {
     }
 
 
-
-
-
-
-
     /////////////////get all fields in set
-    public Set<String> getAllReservationFeilds() {
+    public Set<String> getAllReservationFields() {
         log.info("CHECK_CONVERT_SERVICE: Entered into get All fields Service");
 
         Set<String> fields = new HashSet<>();
@@ -384,15 +340,12 @@ public class Check_ConvertService {
         return fields;
 
 
-
     }
 
 
-    public List<Reservation_Backup_DB> convertdtoentity(List<Reservation_Kafka_DTO> reservation_kafka_dto_list)
-    {
+    public List<Reservation_Backup_DB> convertdtoentity(List<Reservation_Kafka_DTO> reservation_kafka_dto_list) {
         List<Reservation_Backup_DB> reservation_backup_db_list = new ArrayList<>();
-        for(Reservation_Kafka_DTO reservation_kafka_dto:reservation_kafka_dto_list)
-        {
+        for (Reservation_Kafka_DTO reservation_kafka_dto : reservation_kafka_dto_list) {
             reservation_backup_db = new Reservation_Backup_DB();
             reservation_backup_db.setId(reservation_kafka_dto.getId());
             reservation_backup_db.setRestaurantcode(reservation_kafka_dto.getRestaurant_code());
@@ -404,15 +357,14 @@ public class Check_ConvertService {
 
         }
 
-        return  reservation_backup_db_list;
+        return reservation_backup_db_list;
     }
 
     public List<Reservation_Kafka_DTO> convertentitytodto(List<Reservation_MDB> reservation_mdbs_list) {
-        List<Reservation_Kafka_DTO> reservation_kafka_dto_list=new ArrayList<>();
+        List<Reservation_Kafka_DTO> reservation_kafka_dto_list = new ArrayList<>();
         Reservation_Kafka_DTO reservation_kafka_dto;
-        for(Reservation_MDB reservation_mdb:reservation_mdbs_list)
-        {
-            reservation_kafka_dto =new Reservation_Kafka_DTO();
+        for (Reservation_MDB reservation_mdb : reservation_mdbs_list) {
+            reservation_kafka_dto = new Reservation_Kafka_DTO();
             reservation_kafka_dto.setId(reservation_mdb.getId());
             reservation_kafka_dto.setRestaurant_code(reservation_mdb.getRestaurantcode());
             reservation_kafka_dto.setRestaurant_name(reservation_mdb.getRestaurantname());

@@ -24,9 +24,6 @@ import java.util.Map;
 class KafkaProducerConfig {
 
 
-
-
-
     @Value("${spring.kafka.producer.bootstrap-servers}")
     private String bootstrapServers;
     @Value("${spring.kafka.producer.key-serializer}")
@@ -51,29 +48,25 @@ class KafkaProducerConfig {
     private String enableIdempotence;
 
 
-
-
     ////Placing order
     @Bean
-    public ProducerFactory<String, Reservation_Kafka_DTO> producerFactoryJson() throws UnknownHostException
-    {
+    public ProducerFactory<String, Reservation_Kafka_DTO> producerFactoryJson() throws UnknownHostException {
         Map<String, Object> configProps = new HashMap<>();
 
-        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,bootstrapServers);
-        configProps.put(ProducerConfig.CLIENT_ID_CONFIG,clientId+"_"+ InetAddress.getLocalHost().getHostName()+"json");
-        configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,keySerializer);
-        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,valueSerializer);
-        configProps.put(ProducerConfig.ACKS_CONFIG,acks);
-        configProps.put(ProducerConfig.RETRIES_CONFIG,retries);
-        configProps.put(ProducerConfig.BATCH_SIZE_CONFIG,batchSize);
-        configProps.put(ProducerConfig.LINGER_MS_CONFIG,lingerMs);
-        configProps.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG,enableIdempotence);
-        configProps.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG,transactionId);
+        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        configProps.put(ProducerConfig.CLIENT_ID_CONFIG, clientId + "_" + InetAddress.getLocalHost().getHostName() + "json");
+        configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, keySerializer);
+        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, valueSerializer);
+        configProps.put(ProducerConfig.ACKS_CONFIG, acks);
+        configProps.put(ProducerConfig.RETRIES_CONFIG, retries);
+        configProps.put(ProducerConfig.BATCH_SIZE_CONFIG, batchSize);
+        configProps.put(ProducerConfig.LINGER_MS_CONFIG, lingerMs);
+        configProps.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, enableIdempotence);
+        configProps.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG, transactionId);
 
         DefaultKafkaProducerFactory<String, Reservation_Kafka_DTO> factory = new DefaultKafkaProducerFactory<>(configProps);
-        if(transactionId != null)
-        {
-            factory.setTransactionIdPrefix(transactionId+"_"+InetAddress.getLocalHost().getHostName());
+        if (transactionId != null) {
+            factory.setTransactionIdPrefix(transactionId + "_" + InetAddress.getLocalHost().getHostName());
             factory.setProducerPerConsumerPartition(false);
         }
         return factory;
@@ -81,45 +74,10 @@ class KafkaProducerConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, Reservation_Kafka_DTO> kafkaTemplateJson() throws UnknownHostException
-    {
+    public KafkaTemplate<String, Reservation_Kafka_DTO> kafkaTemplateJson() throws UnknownHostException {
         return new KafkaTemplate<>(producerFactoryJson());
 
     }
-
-
-/////update order
-//    @Bean
-//    public ProducerFactory<String, Reservation_Kafka_DTO> producerFactoryJson_update() throws UnknownHostException
-//    {
-//        Map<String, Object> configProps = new HashMap<>();
-//
-//        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,bootstrapServers);
-//        configProps.put(ProducerConfig.CLIENT_ID_CONFIG,clientId+"_"+ InetAddress.getLocalHost().getHostName()+"json");
-//        configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,keySerializer);
-//        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,valueSerializer);
-//        configProps.put(ProducerConfig.ACKS_CONFIG,acks);
-//        configProps.put(ProducerConfig.RETRIES_CONFIG,retries);
-//        configProps.put(ProducerConfig.BATCH_SIZE_CONFIG,batchSize);
-//        configProps.put(ProducerConfig.LINGER_MS_CONFIG,lingerMs);
-//        configProps.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG,enableIdempotence);
-//        configProps.put(ProducerConfig.TRANSACTIONAL_ID_CONFIG,transactionId);
-//
-//        DefaultKafkaProducerFactory<String, Reservation_Kafka_DTO> factory = new DefaultKafkaProducerFactory<>(configProps);
-//        if(transactionId != null)
-//        {
-//            factory.setTransactionIdPrefix(transactionId+"_"+InetAddress.getLocalHost().getHostName());
-//            factory.setProducerPerConsumerPartition(false);
-//        }
-//        return factory;
-//
-//    }
-//
-//@Bean
-//public KafkaTemplate<String, Reservation_Kafka_DTO> kafkaTemplateJson_update() throws UnknownHostException
-//{
-//    return new KafkaTemplate<>(producerFactoryJson_update());
-//}
 
 
 }

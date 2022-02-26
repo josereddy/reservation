@@ -17,25 +17,16 @@ public class KafkaConsumer {
     private CrudServices cr_service;
 
     @Qualifier("jsonKafkaListenerContainerFactory")
-    @KafkaListener(containerFactory = "jsonKafkaListenerContainerFactory",topics = "${kafka.topic.json-demo.name1}", groupId = "${kafka.topic.json-demo.groupId1}")
+    @KafkaListener(containerFactory = "jsonKafkaListenerContainerFactory", topics = "${kafka.topic.json-demo.name1}", groupId = "${kafka.topic.json-demo.groupId1}")
     public void getMessage(List<Reservation_Kafka_DTO> reservation_kafka_dto_list) {
 
         log.info("Inside the kafka Listener ADDING ORDER");
         if (cr_service.add_backup(reservation_kafka_dto_list)) {
             log.info("All objects got successfully  Transmitted to Database");
 
-        }
-        else
+        } else
             log.info("Data not saved Successfully");
     }
 }
 
-//    @Qualifier("jsonKafkaListenerContainerFactory_update")
-//    @KafkaListener(containerFactory = "jsonKafkaListenerContainerFactory_update",topics = "${kafka.topic.json-demo.name2}", groupId = "${kafka.topic.json-demo.groupId2}")
-//    public void getMessage_Update(Order_Update order) {
-//
-//        log.info("Inside the kafka Listener UPDATING ORDER");
-//        service.updateorder_status(order);
-//        log.info("All objects got successfully  Transmitted to Database");
-//    }
 

@@ -10,7 +10,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.persistence.Transient;
 
-@Document(collection="RESERVATION")
+@Document(collection = "RESERVATION")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

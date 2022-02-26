@@ -8,7 +8,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.persistence.Transient;
 
-@Document(collection="RESERVATION_BOOKING_NUMBER")
+@Document(collection = "RESERVATION_BOOKING_NUMBER")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

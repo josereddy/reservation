@@ -44,7 +44,6 @@ public class KafkaConsumerConfig {
     private String autoOffsetReset;
 
 
-
     // placing order
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, Reservation_Kafka_DTO> jsonKafkaListenerContainerFactory() {
@@ -57,9 +56,8 @@ public class KafkaConsumerConfig {
     }
 
 
-
     @Bean
-    public DefaultKafkaConsumerFactory<String,Reservation_Kafka_DTO> jsonConsumerFactory() {
+    public DefaultKafkaConsumerFactory<String, Reservation_Kafka_DTO> jsonConsumerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         props.put(ConsumerConfig.CLIENT_ID_CONFIG, clientId);
@@ -78,48 +76,6 @@ public class KafkaConsumerConfig {
 
     }
 
-
-
-
-
-
-
-
-
-
-    //
-//
-//    //update order
-//    @Bean
-//    public DefaultKafkaConsumerFactory<String, K> jsonConsumerFactory_update() {
-//        Map<String, Object> props = new HashMap<>();
-//        props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-//        props.put(ConsumerConfig.CLIENT_ID_CONFIG, clientId);
-//        props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, autoOffsetReset);
-//        props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
-//        props.put(ConsumerConfig.HEARTBEAT_INTERVAL_MS_CONFIG, heartbeatIntervalMs);
-//        props.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, maxPollRecords);
-//        props.put(ConsumerConfig.ISOLATION_LEVEL_CONFIG, isolationLevel);
-//        props.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, keyDeserializer);
-//        props.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, valueDeserializer);
-//
-//        return new DefaultKafkaConsumerFactory<>(
-//                props, new StringDeserializer(), new JsonDeserializer<>(Order_Update.class)
-//        );
-//
-//
-//    }
-//
-//
-//    @Bean
-//    public ConcurrentKafkaListenerContainerFactory<String, Order_Update> jsonKafkaListenerContainerFactory_update() {
-//        ConcurrentKafkaListenerContainerFactory<String, Order_Update> factory = new ConcurrentKafkaListenerContainerFactory<>();
-//        factory.setConsumerFactory(jsonConsumerFactory_update());
-//        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.RECORD);
-//        factory.getContainerProperties().setSyncCommits(true);
-//        return factory;
-//
-//    }
 
 }
 

@@ -56,10 +56,6 @@ public class Reservation_controller {
     private Check_ConvertService cc_service;
 
 
-
-
-
-
     ///Add Reservation  API
     @Operation(summary = "[POST Reservation DATA TO MONGO DB]", description = "New record wil be Added into the database Reservation")
     @SecurityRequirement(name = "check")
@@ -69,7 +65,7 @@ public class Reservation_controller {
         log.info("REST CALL: ENTERED ADD MENU DATA ");
         if (cr_service.save_reservation(reservation_post_dto)) {
             log.debug("REST CALL: ADD MENU DATA Successfully EXITED ");
-            return "MENU Data Successfully Added to DataBase";
+            return "Reservation Data Successfully Added to DataBase";
         } else
             throw new UserDataIncorrectFormatException("Location_Data is incorrect");
 
@@ -78,15 +74,15 @@ public class Reservation_controller {
 
 
     ///Pagination and Sorting And FILTERING  API
-    @Operation(summary = "[GET PAGINATED LOCATION DATA with sorted by and filtering]", description = "MENU data from Location table in pagination with sorting,filtering is obtained ")
+    @Operation(summary = "[GET PAGINATED Reservation DATA with sorted by and filtering]", description = "MENU data from Location table in pagination with sorting,filtering is obtained ")
     @Parameter(name = "offset", example = "0", required = true, description = "PAGE OFFSET", in = ParameterIn.PATH)
     @Parameter(name = "pageSize", example = "5", required = true, description = "PAGE SIZE", in = ParameterIn.PATH)
-    @Parameter(name = "sort_field",example="restaurantcode", required = false, description = "SORTING FIELD/   default=id/    ex:id,restaurantcode,restaurantname.....", in = ParameterIn.QUERY)
-    @Parameter(name = "filter_fields",required = false, description = "Filtering FIELDS/    default=all fields available/     ex:id,restaurantcode,restaurantname.....", in = ParameterIn.QUERY)
+    @Parameter(name = "sort_field", example = "restaurantcode", required = false, description = "SORTING FIELD/   default=id/    ex:id,restaurantcode,restaurantname.....", in = ParameterIn.QUERY)
+    @Parameter(name = "filter_fields", required = false, description = "Filtering FIELDS/    default=all fields available/     ex:id,restaurantcode,restaurantname.....", in = ParameterIn.QUERY)
     @SecurityRequirement(name = "check")
     @GetMapping("/get/pagination_sort_filtering/{offset}/{pageSize}")
     private MappingJacksonValue getReservationsWithPagination_SortAndFiltering_reservation(@PathVariable("offset") int offset, @PathVariable("pageSize") int pageSize,
-                                                                           @RequestParam("sort_field") Optional<String> sort_field, @RequestParam Optional<Set<String>> filter_fields) {
+                                                                                           @RequestParam("sort_field") Optional<String> sort_field, @RequestParam Optional<Set<String>> filter_fields) {
         log.info("REST CALL: Entered Pagination and Sorting and filtering");
         MappingJacksonValue value = cr_service.findReservationsWithPaginationSorting_filtering_reservation(offset, pageSize, sort_field, filter_fields);
         log.debug("REST CALL:Exited Pagination AND Sorting AND Filtering");
@@ -99,8 +95,8 @@ public class Reservation_controller {
     @SecurityRequirement(name = "check")
     @Operation(summary = "[GET the Reservation record by field and value]", description = "Get the single record for given field and value ")
     @Parameter(name = "id_value", example = "1", required = true, description = "Field Value", in = ParameterIn.PATH)
-    @GetMapping("/get/search_location/{id_value}")
-    public MappingJacksonValue search_value(@PathVariable("value") String value) {
+    @GetMapping("/get/search_reservation/{id_value}")
+    public MappingJacksonValue search_value(@PathVariable("id_value") String value) {
         log.info("REST API: Entered SEARCH Service");
         MappingJacksonValue json_reservation = cr_service.find_value(value);
         log.debug("REST API: Exited Search Service");
@@ -119,11 +115,11 @@ public class Reservation_controller {
     }
 
 
-///////////////////////   Delete Location Api
+    ///////////////////////   Delete Location Api
     @SecurityRequirement(name = "check")
-    @Operation(summary = "[Delete the location record based on id]", description = "No more data available in the database with the chosen id")
+    @Operation(summary = "[Delete the Reservation record based on id]", description = "No more data available in the database with the chosen id")
     @Parameter(name = "id", example = "1", required = true, description = "Id VALUE", in = ParameterIn.PATH)
-    @DeleteMapping("/delete/delete_location/{id}")
+    @DeleteMapping("/delete/delete_reservation/{id}")
     public String delete_location(@PathVariable("id") Long id) {
         log.info("REST API: Entered Deleted Location ");
         if (cr_service.delete_service_reservation(id)) {
@@ -135,33 +131,21 @@ public class Reservation_controller {
     }
 
 
-
-
-
-
-
-
-
-
-
 /////////////////////// Interceptor API TIMINGS
 
     @GetMapping("/get/api_timing/{offset}/{pageSize}/{Microservice}")
     @SecurityRequirement(name = "check")
-    @Operation(summary = "[GET The All Location Api timings]", description = "Retrieve data in pagination format from db")
+    @Operation(summary = "[GET The All Reservation Api timings]", description = "Retrieve data in pagination format from db")
     @Parameter(name = "offset", example = "0", required = true, description = " PAGE OFFSET", in = ParameterIn.PATH)
     @Parameter(name = "pageSize", example = "5", required = true, description = "PAGE SIZE", in = ParameterIn.PATH)
     @Parameter(name = "Microservice", example = "MENU", required = true, description = "Microservice name", in = ParameterIn.PATH)
 
     public Page<Interceptor_Data_DB> get_api_timing(@PathVariable("offset") int offset, @PathVariable("pageSize") int pageSize, @PathVariable("Microservice") String name) {
         log.info("REST API:Entered into Api TIME sender");
-        Page<Interceptor_Data_DB> data = cr_service.api_timing(offset, pageSize,name);
+        Page<Interceptor_Data_DB> data = cr_service.api_timing(offset, pageSize, name);
         log.debug("REST API:Exited FROM API TIME SENDER");
         return data;
     }
-
-
-
 
 
 /////////////  Remote service API
@@ -177,11 +161,7 @@ public class Reservation_controller {
     }
 
 
-
-
-
-
-////////////////////////////////////remote_delete_location_menus_reservation
+    ////////////////////////////////////remote_delete_location_menus_reservation
     @Hidden
     @SecurityRequirement(name = "check")
     @DeleteMapping("/delete/remote_delete_location_menus_reservation/{code}")
@@ -196,25 +176,21 @@ public class Reservation_controller {
     @Hidden
     @SecurityRequirement(name = "check")
     @PutMapping("/put/remote_update_menus_reservation/{code}")
-    public boolean  remote_update_menus_reservation(@PathVariable String code ) {
+    public boolean remote_update_menus_reservation(@PathVariable String code) {
 
         log.info("REST API:Inside the Update menus_reservation api");
-         return cr_service.remote_update_menus_reservation(code);
+        return cr_service.remote_update_menus_reservation(code);
     }
 
 
     @Hidden
     @SecurityRequirement(name = "check")
     @DeleteMapping("/delete/remote_delete_menus_reservation/{code}")
-    public boolean  remote_delete_menus_reservation(@PathVariable String code ) {
+    public boolean remote_delete_menus_reservation(@PathVariable String code) {
 
         log.info("REST API:Inside the delete menus_reservation Api");
         return cr_service.remote_delete(code);
     }
-
-
-
-
 
 
 }

@@ -1,0 +1,51 @@
+spring:
+  data:
+    mongodb:
+      host: ${MONGODB_HOSTNAME:localhost}
+      port:  27017
+      database: project_final_test
+      auto-index-creation: true
+  datasource:
+    platform: postgres
+    url: jdbc:postgresql://${DPSQL_HOSTNAME:localhost}:5432/postgres_test
+    username: postgres
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+  kafka:
+    consumer:
+      bootstrap-servers: ${DBOOT_NAME:localhost}:${KAFKA-IP:9092}
+      client-id: NotifierClient
+      auto-offset-reset: latest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      isolation-level: read_committed
+      max-poll-records: 10
+      heartbeat-interval: 6000
+    producer:
+      bootstrap-servers: ${DBOOT_NAME:localhost}:${KAFKA-IP:9092}
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+      batch-size: 16384
+      buffer-memory: 33554432
+      linger-ms: 100000
+      retries : 5
+      enable-Idempotence : true
+      client-id : NotifierClient8
+      transactionalId: NotifiactionTransId
+
+
+Remote:
+  url_remote: http://${MENUS_SERVER:localhost}:8082/menus/put/check_reservation_menus
+
+
+
+kafka:
+  topic:
+    json-demo:
+      name1 : RESERVATIONS
+      groupId1 : NotificationJsonDemoGroup
+

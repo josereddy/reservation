@@ -15,12 +15,12 @@ public class Generalinterceptor implements HandlerInterceptor {
     private static final Logger log = LogManager.getLogger(Generalinterceptor.class.getName());
 
     private CrudServices cr_service;
-public Generalinterceptor(CrudServices cr)
-{
-    log.info("General INTERCEPTOR: CALLED");
-    cr_service =cr;
 
-}
+    public Generalinterceptor(CrudServices cr) {
+        log.info("General INTERCEPTOR: CALLED");
+        cr_service = cr;
+
+    }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -28,7 +28,7 @@ public Generalinterceptor(CrudServices cr)
         log.info("General Interceptor: Entered into Pre-handler method");
         long startTime = System.currentTimeMillis();
         request.setAttribute("startTime", startTime);
-        log.debug("GET Interceptor: Exited from Pre-handler method");
+        log.info("GET Interceptor: Exited from Pre-handler method");
         return true;
     }
 
@@ -36,10 +36,10 @@ public Generalinterceptor(CrudServices cr)
     public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
         log.info("GET Interceptor: Entered into post-handler method");
         HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
-        long startTime = (Long)request.getAttribute("startTime");
+        long startTime = (Long) request.getAttribute("startTime");
         long endTime = System.currentTimeMillis();
-        long executeTime = endTime-startTime;
-        List data =new ArrayList();
+        long executeTime = endTime - startTime;
+        List data = new ArrayList();
         data.add(executeTime);
         data.add(request.getMethod());
         data.add(request.getRequestURI());

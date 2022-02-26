@@ -61,18 +61,15 @@ public class CrudServices {
     private KafkaProducer kafkaProducer;
 
 
-////services
+    ////services
     @Autowired
     private Check_ConvertService cc_service;
     @Autowired
     private RemoteRequest remote_request_service;
 
 
-
     private Reservation_MDB reservation_mdb;
     private static Long id_check_sum = 0l;
-
-
 
 
     ///SAVE SERVICE
@@ -86,31 +83,26 @@ public class CrudServices {
 
             if (cc_service.verify_before_add(reservation_mdb)) {
                 reservation_repository.save(reservation_mdb);
-              log.info("CRUD_SERVICE: Successfully Exited the AddReservation to database");
+                log.info("CRUD_SERVICE: Successfully Exited the AddReservation to database");
 
                 return true;
-            }
-
-            else//////if  second check get failed
+            } else//////if  second check get failed
                 return false;
 
-        }
-else//////if  initial check get failed
-    return false;
+        } else//////if  initial check get failed
+            return false;
 
     }
 
 
-
-
-
-//    //PAGINATION SERVICE
+    //    //PAGINATION SERVICE
     public MappingJacksonValue findReservationsWithPaginationSorting_filtering_reservation(int offset, int pageSize, Optional<String> sort_field, Optional<Set<String>> filter_field) {
 
 
         log.info("CRUD_SERVICE: Entered into the PaginationAndSorting and filtering");
         Page<Reservation_MDB> locations = reservation_repository.findAll(PageRequest.of(offset, pageSize).withSort(Sort.by(sort_field.orElse("id"))));
-        SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter.filterOutAllExcept(filter_field.orElse(cc_service.getAllReservationFeilds()));        FilterProvider filters = new SimpleFilterProvider().addFilter("ModelReservation", filter);
+        SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter.filterOutAllExcept(filter_field.orElse(cc_service.getAllReservationFields()));
+        FilterProvider filters = new SimpleFilterProvider().addFilter("ModelReservation", filter);
         MappingJacksonValue mapping = new MappingJacksonValue(locations);
         mapping.setFilters(filters);
         log.info("CRUD_SERVICE: Exited into the PaginationAndSorting and filtering");
@@ -119,34 +111,27 @@ else//////if  initial check get failed
     }
 
 
-
-
-
-
-
-
     ///////////Get by feild
 
     public MappingJacksonValue find_value(String value) {
 
         log.info("CRUD_SERVICE: Entered into the GET BY ID SERVICE");
 
-            Long id_val=Long.parseLong(value);
-            Optional<Reservation_MDB> reservation_mbd_optional = reservation_repository.findById(id_val);
-            if (!(reservation_mbd_optional.isPresent())) {
-                throw new UserNotFoundException("Cannot find the requested data for the given value: "+value);
-            }
-            reservation_mdb  =  reservation_mbd_optional.get();
-            SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter.filterOutAllExcept( cc_service.getAllReservationFeilds());
-            FilterProvider filters = new SimpleFilterProvider().addFilter("ModelReservation", filter);
-            MappingJacksonValue mapping = new MappingJacksonValue(value);
-            mapping.setFilters(filters);
-            log.info("CRUD_SERVICE: SUCCESSFULLY  EXITED FROM GET BY ID SERVICE");
-            return mapping;
+        Long id_val = Long.parseLong(value);
+        Optional<Reservation_MDB> reservation_mbd_optional = reservation_repository.findById(id_val);
+        if (!(reservation_mbd_optional.isPresent())) {
+            throw new UserNotFoundException("Cannot find the requested data for the given value: " + value);
+        }
+        reservation_mdb = reservation_mbd_optional.get();
+
+        SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter.filterOutAllExcept(cc_service.getAllReservationFields());
+        FilterProvider filters = new SimpleFilterProvider().addFilter("ModelReservation", filter);
+        MappingJacksonValue mapping = new MappingJacksonValue(reservation_mdb);
+        mapping.setFilters(filters);
+        log.info("CRUD_SERVICE: SUCCESSFULLY  EXITED FROM GET BY ID SERVICE");
+        return mapping;
 
     }
-
-
 
 
     ////////////////////////////update Service
@@ -158,22 +143,21 @@ else//////if  initial check get failed
         if (cc_service.findbookingnumber(reservation_put_dto)) {
 
 
-         ////check if it is  a valid id
+            ////check if it is  a valid id
             if (!(reservation_repository.findById(reservation_put_dto.getId()).isPresent()))
                 throw new UserNotFoundException("Reservation with ID " + reservation_put_dto.getId() + " not present");
             Optional<Reservation_MDB> reservation_mdb_optional = reservation_repository.findById(reservation_put_dto.getId());
 
-           ////check if it has valid code and name of the restaurant
+            ////check if it has valid code and name of the restaurant
             if ((reservation_mdb_optional.get().getRestaurantcode().equals(reservation_put_dto.getRestaurant_code())) &&
                     (reservation_mdb_optional.get().getRestaurantname().equals(reservation_put_dto.getRestaurant_name()))) {
 
 
-           /////check if it is previous return it cannot be updated
+                /////check if it is previous return it cannot be updated
                 if ((reservation_mdb_optional.get().getReservationdate().equals(reservation_put_dto.getReservation_date())) &&
                         (reservation_mdb_optional.get().getBookingtime().equals(reservation_put_dto.getBooking_time()))) {
                     throw new UnauthorisedException("since all details are same as previous no need for update");
                 }
-
 
 
                 ////do decrement first if all is ok
@@ -209,29 +193,24 @@ else//////if  initial check get failed
         }
     }
 
-//
-//
-//
-//    /////////////Deleted  service
- public Boolean delete_service_reservation(Long id) {
-     log.info("CRUD_SERVICE: Entered into DELETED SERVICE");
-     if(!(reservation_repository.findById(id).isPresent()))
-         throw new UserNotFoundException("Reservation with ID "+id+" not present");
-else
-     {
 
-         reservation_mdb=(reservation_repository.findById(id).get());
-         cc_service.decrement_booking(reservation_mdb);
-         reservation_repository.deleteById(id);
-         log.debug("CRUD_SERVICE: Exited into DELETED SERVICE");
-         return true;
-     }
+    //    /////////////Deleted  service
+    public Boolean delete_service_reservation(Long id) {
+        log.info("CRUD_SERVICE: Entered into DELETED SERVICE");
+        if (!(reservation_repository.findById(id).isPresent()))
+            throw new UserNotFoundException("Reservation with ID " + id + " not present");
+        else {
+
+            reservation_mdb = (reservation_repository.findById(id).get());
+            cc_service.decrement_booking(reservation_mdb);
+            reservation_repository.deleteById(id);
+            log.debug("CRUD_SERVICE: Exited into DELETED SERVICE");
+            return true;
+        }
 
     }
-//
-//
-//
-//
+
+
 /////////////////Rest api timing service
 
     public void add_interceptor_data(List data) {
@@ -249,41 +228,32 @@ else
     }
 
 
-
-
-
-    public Page<Interceptor_Data_DB> api_timing(int offset, int pageSize, String  name) {
+    public Page<Interceptor_Data_DB> api_timing(int offset, int pageSize, String name) {
         log.info("CRUD_SERVICE: Entered into the api timing sender");
-        Page<Interceptor_Data_DB> data = interceptor_repository.findByApiname(name,PageRequest.of(offset, pageSize));
+        Page<Interceptor_Data_DB> data = interceptor_repository.findByApiname(name, PageRequest.of(offset, pageSize));
         log.debug("CRUD_SERVICE: Exited from the api timing sender");
         return data;
     }
 
 
-
-
-
-
-    /////////////remote menu-->reservation api request update
+    /////////////remote       location-------->menu-->reservation api request update
     public boolean remote_update(Remote_Put_Location_Menus_Reservation_DTO remote_put_location_menus_reservation_dto) {
 
         log.info("CRUD SERVICE:Entered into the remote_update");
         List<Reservation_MDB> list_reservations = reservation_repository.findByRestaurantcode(remote_put_location_menus_reservation_dto.getOld_restaurant_code());
-       for(Reservation_MDB reservation_mdb : list_reservations)
-       {
-               reservation_mdb.setRestaurantcode(remote_put_location_menus_reservation_dto.getUpdated_restaurant_code());
-               reservation_mdb.setRestaurantname(remote_put_location_menus_reservation_dto.getUpdated_restaurant_name());
-               reservation_repository.save(reservation_mdb);
+        for (Reservation_MDB reservation_mdb : list_reservations) {
+            reservation_mdb.setRestaurantcode(remote_put_location_menus_reservation_dto.getUpdated_restaurant_code());
+            reservation_mdb.setRestaurantname(remote_put_location_menus_reservation_dto.getUpdated_restaurant_name());
+            reservation_repository.save(reservation_mdb);
 
-           }
-       List<Reservation_Booking_Number_MDB> list_bookings = booking_repository.findAllByRestaurantcode(remote_put_location_menus_reservation_dto.getOld_restaurant_code());
-        for(Reservation_Booking_Number_MDB booking:list_bookings)
-        {
+        }
+        List<Reservation_Booking_Number_MDB> list_bookings = booking_repository.findAllByRestaurantcode(remote_put_location_menus_reservation_dto.getOld_restaurant_code());
+        for (Reservation_Booking_Number_MDB booking : list_bookings) {
             booking.setRestaurantcode(remote_put_location_menus_reservation_dto.getUpdated_restaurant_code());
             Pattern p = Pattern.compile(",");
-            String [] s = p.split(booking.getRestaurantstring());
-            String updated_resstring = remote_put_location_menus_reservation_dto.getUpdated_restaurant_code()+remote_put_location_menus_reservation_dto.getUpdated_restaurant_name()+","
-                    +s[1];
+            String[] s = p.split(booking.getRestaurantstring());
+            String updated_resstring = remote_put_location_menus_reservation_dto.getUpdated_restaurant_code() + remote_put_location_menus_reservation_dto.getUpdated_restaurant_name() + ","
+                    + s[1];
 
             booking.setRestaurantstring(updated_resstring);
             booking_repository.save(booking);
@@ -293,27 +263,12 @@ else
     }
 
 
-
-
     ////remote  delete from menus  ---->reservations///////////////and aslo location---menus-reservation (one for all)
     public boolean remote_delete(String code) {
         log.info("inside the delete remote request call");
 
-//        List<Reservation_MDB> list_reservations = reservation_repository.findByRestaurantcode(code);
-
         reservation_repository.deleteAllByRestaurantcode(code);
         booking_repository.deleteAllByRestaurantcode(code);
-
-//        for(Reservation_MDB reservation_mdb:list_reservations) {
-//
-//                reservation_repository.deleteById(reservation_mdb.getId());
-//        }
-//        List<Reservation_Booking_Number_MDB> list_bookings = booking_repository.findAllByRestaurantcode(code);
-//        for(Reservation_Booking_Number_MDB booking:list_bookings)
-//        {
-//
-//            booking_repository.deleteById(booking.getId());
-//        }
 
         log.info("Existed from the delete remote request call");
         return true;
@@ -323,16 +278,13 @@ else
     ////////remote menus-reservation update
     public boolean remote_update_menus_reservation(String code) {
         log.info("CRUD SERVICE:Inside the remote_put_menus_reservation service");
-        List<Reservation_MDB> list_reservation_mdb=null;
-        if((list_reservation_mdb=reservation_repository.findByRestaurantcode(code))==null)
+        List<Reservation_MDB> list_reservation_mdb = null;
+        if ((list_reservation_mdb = reservation_repository.findByRestaurantcode(code)) == null)
             return true;
-        else
-        {
-            for(Reservation_MDB reservation_mdb:list_reservation_mdb)
-            {
+        else {
+            for (Reservation_MDB reservation_mdb : list_reservation_mdb) {
                 LocalDate today = LocalDate.now(ZoneId.of("America/Montreal"));
-                if(((today.toString().compareTo(reservation_mdb.getReservationdate()))<=0))
-                {
+                if (((today.toString().compareTo(reservation_mdb.getReservationdate())) <= 0)) {
                     Integer remote_response = remote_request_service.remote_check_put_reservation_menus(cc_service.convert_mdb_remote_put_dto(reservation_mdb));
                     if (remote_response == 3 || remote_response == 4) {
                         cc_service.decrement_booking(reservation_mdb);
@@ -350,45 +302,38 @@ else
     public boolean add_backup(List<Reservation_Kafka_DTO> reservation_kafka_dto_list) {
 
         List<Reservation_Backup_DB> reservation_backup_db_list = cc_service.convertdtoentity(reservation_kafka_dto_list);
-         reservation_backup_repository.saveAll(reservation_backup_db_list);
-         return true;
+        reservation_backup_repository.saveAll(reservation_backup_db_list);
+        return true;
 
     }
 
     /////////////////////////////////////SCHEDULER
-    @Scheduled(cron="*/10 * * * * *")
-    public void backup_automation()
-    {
+    @Scheduled(cron = "*/10 * * * * *")
+    public void backup_automation() {
         log.info("cron job started");
         //creating current date
-        List<Reservation_MDB>  reservation_mdbs_list;
-        if(id_check_sum==0) {
+        List<Reservation_MDB> reservation_mdbs_list;
+        if (id_check_sum == 0) {
             reservation_mdbs_list = reservation_repository.findAll();
-            if (!((reservation_mdbs_list == null)||reservation_mdbs_list.isEmpty()))
-            {
+            if (!((reservation_mdbs_list == null) || reservation_mdbs_list.isEmpty())) {
                 id_check_sum = reservation_mdbs_list.get((reservation_mdbs_list.size()) - 1).getId();
                 System.out.println(reservation_mdbs_list);
                 List<Reservation_Kafka_DTO> reservation_kafka_dto_list = cc_service.convertentitytodto(reservation_mdbs_list);
                 kafkaProducer.sendObject(reservation_kafka_dto_list);
 
             }
-        }
-        else {
+        } else {
             reservation_mdbs_list = reservation_repository.getbyid(id_check_sum);
-            if (!((reservation_mdbs_list == null)||reservation_mdbs_list.isEmpty()))
-            {
+            if (!((reservation_mdbs_list == null) || reservation_mdbs_list.isEmpty())) {
                 System.out.println(reservation_mdbs_list);
                 List<Reservation_Kafka_DTO> reservation_kafka_dto_list = cc_service.convertentitytodto(reservation_mdbs_list);
                 kafkaProducer.sendObject(reservation_kafka_dto_list);
 
             }
-            System.out.println("-----------------ok doing fine");
+
         }
 
     }
-
-
-
 
 
 }

@@ -24,15 +24,14 @@ public class Custom_ResponseEntityExceptionalHandler extends ResponseEntityExcep
     private static final Logger log = LogManager.getLogger(Custom_ResponseEntityExceptionalHandler.class.getName());
 
 
+    ///custom exception
 
-    @ExceptionHandler( BookingExceedException.class)
-    public final ResponseEntity<Object> handleBookingExceedException( BookingExceedException ex, WebRequest request) {
+    @ExceptionHandler(BookingExceedException.class)
+    public final ResponseEntity<Object> handleBookingExceedException(BookingExceedException ex, WebRequest request) {
         log.error("Exception : BookingExceedException");
         ExceptionResponse er = new ExceptionResponse(new Date(), ex.getMessage(), request.getDescription(false));
         return new ResponseEntity<>(er, HttpStatus.BAD_REQUEST);
     }
-
-
 
 
     @ExceptionHandler(DateFormatException.class)
@@ -41,7 +40,6 @@ public class Custom_ResponseEntityExceptionalHandler extends ResponseEntityExcep
         ExceptionResponse er = new ExceptionResponse(new Date(), ex.getMessage(), request.getDescription(false));
         return new ResponseEntity<>(er, HttpStatus.BAD_REQUEST);
     }
-
 
 
     @ExceptionHandler(InvalidTimeFormatException.class)
@@ -79,6 +77,7 @@ public class Custom_ResponseEntityExceptionalHandler extends ResponseEntityExcep
         ExceptionResponse er = new ExceptionResponse(new Date(), ex.getMessage(), request.getDescription(false));
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
+
     @ExceptionHandler(NoFieldPresentException.class)
     public final ResponseEntity<Object> handleNOFieldPresentException(NoFieldPresentException ex, WebRequest request) {
         log.error("Exception :NoFieldPresentException");
@@ -102,6 +101,8 @@ public class Custom_ResponseEntityExceptionalHandler extends ResponseEntityExcep
         return new ResponseEntity<>(er, HttpStatus.NOT_FOUND);
     }
 
+
+    ////programmatic exception
     @Override
     protected final ResponseEntity<Object> handleHttpRequestMethodNotSupported(HttpRequestMethodNotSupportedException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
         log.error("Exception: handleHttpRequestMethodNotSupported");

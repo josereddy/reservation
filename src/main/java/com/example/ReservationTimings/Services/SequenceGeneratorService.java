@@ -32,10 +32,10 @@ public class SequenceGeneratorService {
     public long generateSequence(String seqName) {
 
         log.info("SEQUENCE GENERATOR SERVICE:Entered into the generate seq service ");
-        Query query=new Query(Criteria.where("id").is(seqName));
-        Update update = new Update().inc("seq",1);
+        Query query = new Query(Criteria.where("id").is(seqName));
+        Update update = new Update().inc("seq", 1);
         DatabaseSequence counter;
-        counter = mongoOperations.findAndModify(query,update,options().returnNew(true).upsert(true),DatabaseSequence.class);
+        counter = mongoOperations.findAndModify(query, update, options().returnNew(true).upsert(true), DatabaseSequence.class);
         log.debug("SEQUENCE GENERATOR SERVICE:Exited from the generate seq service ");
         return !Objects.isNull(counter) ? counter.getSeq() : 1;
 

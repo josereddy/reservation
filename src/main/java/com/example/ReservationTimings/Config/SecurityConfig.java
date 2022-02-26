@@ -1,7 +1,6 @@
 package com.example.ReservationTimings.Config;
 
 
-
 import com.example.ReservationTimings.Exception.RestAuthenticationEntryPoint;
 import com.example.ReservationTimings.Services.UserService;
 import org.apache.logging.log4j.LogManager;
@@ -24,11 +23,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     final Logger log = LogManager.getLogger(SecurityConfig.class.getName());
 
-    public SecurityConfig()
-    {
+    public SecurityConfig() {
         log.info("SecurityConfig: Inside the Security Config Class");
     }
-
 
 
     @Autowired
@@ -37,15 +34,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER).and().
+        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.NEVER).and().
                 csrf().disable().authorizeRequests()
-                .antMatchers("/swagger-ui/**","/v3/api-docs/**").permitAll()
-                .antMatchers("/reservation/post/**","/reservation/put/**","/reservation/update/**","/reservation/delete/**").hasAnyRole("ADMIN")
+                .antMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                .antMatchers("/reservation/post/**", "/reservation/put/**", "/reservation/update/**", "/reservation/delete/**").hasAnyRole("ADMIN")
                 .anyRequest().authenticated().and().httpBasic().and().exceptionHandling().authenticationEntryPoint(authenticationEntryPoint());
 
     }
-
-
 
 
     @Bean
@@ -61,15 +56,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-            auth.authenticationProvider(daoAuthenticationProvider());
+        auth.authenticationProvider(daoAuthenticationProvider());
 
     }
 
 
     @Bean
-    DaoAuthenticationProvider daoAuthenticationProvider()
-    {
-        DaoAuthenticationProvider daoAuthenticationProvider =new DaoAuthenticationProvider();
+    DaoAuthenticationProvider daoAuthenticationProvider() {
+        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
         daoAuthenticationProvider.setPasswordEncoder(bcryptPasswordEncoder());
         daoAuthenticationProvider.setUserDetailsService(this.user_service);
         return daoAuthenticationProvider;
