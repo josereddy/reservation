@@ -75,7 +75,7 @@ public class Check_ConvertService {
 
             LocalDate today = LocalDate.now(ZoneId.of("America/Montreal"));
             if (!((today.toString().compareTo(m.group())) <= 0))
-                throw new UserNotFoundException("Please check the Date must be cannot  be past date ");
+                throw new UserNotFoundException("Please check the Date  cannot  be past date ");
         } else
             throw new UserNotFoundException("Please check the Date format must be YYYY-MM-DD");
 
@@ -210,6 +210,8 @@ public class Check_ConvertService {
             booking_reservation_mdb.setRestaurantcode(reservation_mdb.getRestaurantcode());
             booking_reservation_mdb.setRestaurantstring(booking_data);
             booking_reservation_mdb.setNumberofbooking(no_of_booking);
+            System.out.println(booking_reservation_mdb.getRestaurantcode()+booking_reservation_mdb.getRestaurantstring());
+
             booking_repository.save(booking_reservation_mdb);
         }
 

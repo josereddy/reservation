@@ -165,7 +165,15 @@ public class CrudServices {
 
 
                /////4)check if it is previous values return it cannot be updated
-               if ((reservation_mdb_old_optional.get().getRestaurantcode().equals(reservation_put_dto.getRestaurant_code())) &&
+                Reservation_MDB reservation_mdb_old_data = new Reservation_MDB();
+                reservation_mdb_old_data.setRestaurantcode(reservation_mdb_old_optional.get().getRestaurantcode());
+           reservation_mdb_old_data.setRestaurantname(reservation_mdb_old_optional.get().getRestaurantname());
+           reservation_mdb_old_data.setReservationdate(reservation_mdb_old_optional.get().getReservationdate());
+           reservation_mdb_old_data.setBookingtime(reservation_mdb_old_optional.get().getBookingtime());
+           reservation_mdb_old_data.setId(reservation_mdb_old_optional.get().getId());
+
+
+           if ((reservation_mdb_old_optional.get().getRestaurantcode().equals(reservation_put_dto.getRestaurant_code())) &&
                        (reservation_mdb_old_optional.get().getRestaurantname().equals(reservation_put_dto.getRestaurant_name()))&&
                        (reservation_mdb_old_optional.get().getReservationdate().equals(reservation_put_dto.getReservation_date())) &&
                        (reservation_mdb_old_optional.get().getBookingtime().equals(reservation_put_dto.getBooking_time()))) {
@@ -199,7 +207,7 @@ public class CrudServices {
                    reservation_repository.save(reservation_mdb_update);
                }
                ////do decrement first if all is ok
-               cc_service.decrement_booking(reservation_mdb_old_optional.get());
+               cc_service.decrement_booking(reservation_mdb_old_data);
            } else {
                log.info("CRUD_SERVICE: EXITED FROM  UPDATE SERVICE");
                throw new UnauthorisedException("All bookings are filled for the requested updates");
