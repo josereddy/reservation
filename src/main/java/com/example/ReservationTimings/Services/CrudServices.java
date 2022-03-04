@@ -333,7 +333,7 @@ public class CrudServices {
     }
 
     /////////////////////////////////////SCHEDULER
-    @Scheduled(cron = "* */25 * * * *")
+    @Scheduled(cron = "*/12 * * * * *")
     public void backup_automation() {
         log.info("cron job started");
         //creating current date
